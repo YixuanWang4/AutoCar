@@ -9,19 +9,20 @@
 #include <Arduino.h> //To enable the basic Arduino function
 
 #include <v10.h> //To include our header
+#include <wheelcal.h>
 
 #include <freertos/FreeRTOS.h> //To enable the freeRTOS system, so our car will respond more quickly
 #include <freertos/queue.h>
 #include <freertos/semphr.h>
 
 #include <QGPMaker_MotorShield.h> //To communicate with our Motorshield
-#include <Adafruit_MS_PWMServoDriver.h> //The upper library relies on this library, so we need to include it
 
 
 void setup(){
 
     Serial.begin(9600); //Due to the cable, we cannot set a higher baud rate
 
+    //initialize our Motorboard
     bool setUpResult = initShield();
     if (setUpResult != true){
         Serial.println("W1:Cannot initialize Motorboard!");
@@ -30,13 +31,17 @@ void setup(){
         };
     };
 
-
+    bool pipeInitResult = pipeInit();
+    if(pipeInitResult != true){
+        Serial.println("W2:Cannot initialize FreeRTOS pipe!");
+        while(true){
+            //Since we cannot initialize Motorboard, we'll just stop here for check
+        };
+    };
 
 };//To initialize our autocar and set our functions
 
 void loop(){
-
-    
 
 };//The loop function will do nothing, since work has been added to the rtos system
 
@@ -47,3 +52,8 @@ bool initShield(){
 
 };//initialize our Motorboard
 
+bool pipeInit(){
+
+
+    return true;
+};
