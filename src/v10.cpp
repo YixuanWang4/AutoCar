@@ -16,6 +16,7 @@
 #include <freertos/semphr.h>
 
 #include <QGPMaker_MotorShield.h> //To communicate with our Motorshield
+#include "PS2X_lib.h" //To communicate with our handle
 
 
 void setup(){

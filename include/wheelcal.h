@@ -15,11 +15,12 @@ typedef struct {
 
 
 //function definition
-void calMotorAngSpd(void *pvParameters);
+void calMotorAngSpd(void);
 
-void writeMotorAngSpd(void *pvParameters);
+void writeMotorAngSpd(void);
 
-void calHandlePara(void *pvParameters);
+void calHandlePara(void);
 
+void getHandleData(void);
 
 #endif
