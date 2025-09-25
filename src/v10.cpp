@@ -1,5 +1,5 @@
 /*  This is the first version of autocar controller programme
-    Comprehensive note will be include to better understand the code
+    Comprehensive note will be included to better understand the code
     
     Authored by controller group
     Maintained by Baotian
@@ -27,7 +27,7 @@ void setup(){
     if (setUpResult != true){
         Serial.println("W1:Cannot initialize Motorboard!");
         while(true){
-            //Since we cannot initialize Motorboard, we'll just stop here for check
+            //Since we cannot initialize pipe, we'll just stop here for check
         };
     };
 
@@ -56,4 +56,4 @@ bool pipeInit(){
 
 
     return true;
-};
+};//init the pipe we'll use to transmit numbers
