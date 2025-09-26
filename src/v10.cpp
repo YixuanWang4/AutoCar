@@ -28,7 +28,7 @@ void setup(){
     if (setUpResult != true){
         Serial.println("W1:Cannot initialize Motorboard!");
         while(true){
-            //Since we cannot initialize pipe, we'll just stop here for check
+            vTaskDelay(50);//Since we cannot initialize pipe, we'll just stop here for check
         };
     };
 
@@ -36,7 +36,7 @@ void setup(){
     if(pipeInitResult != true){
         Serial.println("W2:Cannot initialize FreeRTOS pipe!");
         while(true){
-            //Since we cannot initialize Motorboard, we'll just stop here for check
+            vTaskDelay(50);//Since we cannot initialize Motorboard, we'll just stop here for check
         };
     };
 
@@ -55,6 +55,11 @@ bool initShield(){
 
 bool pipeInit(){
 
+    motorSpeedQueue = xQueueCreate(300, sizeof(MotorSpeed));
+    if(motorSpeedQueue == NULL){
+        Serial.println("W3:Cannot initialize queue!");
+        return false;
+    };
 
     return true;
 };//init the pipe we'll use to transmit numbers

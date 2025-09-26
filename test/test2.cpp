@@ -24,7 +24,7 @@ void loop(){
         Serial.println("(PSB_PAD_UP)");
     };
 
-    if(ps2x.Button(PSB_L3)){
+    if(ps2x.Button(PSB_L2)){
         Serial.println("(PSB_L2)");
     };
 
@@ -95,7 +95,7 @@ void loop(){
     if(ps2x.Button(PSB_START)){
         Serial.println("(PSB_START)");
     };
-
+    
     //Serial.print(millis() - lastTime);
     //Serial.println("ms.");
     lastTime = millis();
