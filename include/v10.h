@@ -4,9 +4,10 @@
 #ifndef _c10
 #define _c10
 
+#include <arduino.h>
 
 #include <QGPMaker_MotorShield.h> //To communicate with our Motorshield
-#include <Adafruit_MS_PWMServoDriver.h> //The upper library relies on this library, so we need to include it
+#include <PS2X_lib.h>
 
 #include <freertos/FreeRTOS.h> //To enable the freeRTOS system, so our car will respond more quickly
 #include <freertos/queue.h>
@@ -14,23 +15,25 @@
 
 //varaible declaration
 
-QGPMaker_MotorShield Shield;
+extern QGPMaker_MotorShield Shield;
 
-QGPMaker_Servo * servoL = Shield.getServo(0);
-QGPMaker_Servo * servoR = Shield.getServo(1);
+extern QGPMaker_Servo * servoL;
+extern QGPMaker_Servo * servoR;
 
-QGPMaker_DCMotor * motorFL = Shield.getMotor(1);
-QGPMaker_DCMotor * motorBL = Shield.getMotor(2);
-QGPMaker_DCMotor * motorFR = Shield.getMotor(3);
-QGPMaker_DCMotor * motorBR = Shield.getMotor(4);
+extern QGPMaker_DCMotor * motorFL;
+extern QGPMaker_DCMotor * motorBL;
+extern QGPMaker_DCMotor * motorFR;
+extern QGPMaker_DCMotor * motorBR;
+
+extern PS2X ps2x;
+
+extern QueueHandle_t motorSpeedQueue;
+extern SemaphoreHandle_t readHandleMutex;
 
 //function declaration
 
 bool initShield(void);
 bool pipeInit(void);
-
-
-
 
 
 

@@ -18,6 +18,16 @@
 #include <QGPMaker_MotorShield.h> //To communicate with our Motorshield
 #include "PS2X_lib.h" //To communicate with our handle
 
+QueueHandle_t motorSpeedQueue;
+SemaphoreHandle_t readHandleMutex;
+
+TickType_t readHandleDelay = 10;//The rate of reading handle
+TickType_t calHandleDelay = 10;//The rate of calculating data
+TickType_t writeDelay = 10;//The rate of writing data to motor
+float maxSpeed = 1000;//The maxspeed of minicar, default to 1000 mm/s
+float angle = 0.6435011088;//Currently not designed, default to arctan(0.75)
+float length = 0.25;//Currently not designed, default to 0.25
+float radius = 0.03;//The radius of our wheel
 
 void setup(){
 
@@ -40,6 +50,10 @@ void setup(){
         };
     };
 
+    xTaskCreate(getHandleData, "getHandleData", 4096, NULL, 1, NULL);
+    xTaskCreate(calHandlePara, "calHandlePara", 4096, NULL, 1, NULL);
+    xTaskCreate(writeMotorAngSpd, "writeMotorAngSpd", 4096, NULL, 1, NULL);
+
 };//To initialize our autocar and set our functions
 
 void loop(){
@@ -61,5 +75,12 @@ bool pipeInit(){
         return false;
     };
 
+    readHandleMutex = xSemaphoreCreateMutex();
+    if (readHandleMutex == NULL) {
+        Serial.println("W4:Failed to create mutex!");
+        return false;
+    }
+
     return true;
+
 };//init the pipe we'll use to transmit numbers
