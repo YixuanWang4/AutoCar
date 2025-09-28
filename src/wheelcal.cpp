@@ -1,7 +1,6 @@
 /*cpp file to store calculations regarding wheel speed*/
 
 #include <wheelcal.h>
-#include <v10.h>
 
 #include <freertos/FreeRTOS.h> //To enable the freeRTOS system, so our car will respond more quickly
 #include <freertos/queue.h>

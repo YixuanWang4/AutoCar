@@ -4,10 +4,12 @@
 #ifndef _c10
 #define _c10
 
-#include <arduino.h>
+#include <Arduino.h> //To enable the basic Arduino function
 
 #include <QGPMaker_MotorShield.h> //To communicate with our Motorshield
 #include <PS2X_lib.h>
+
+#include <wheelcal.h>
 
 #include <freertos/FreeRTOS.h> //To enable the freeRTOS system, so our car will respond more quickly
 #include <freertos/queue.h>

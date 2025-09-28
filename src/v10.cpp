@@ -2,21 +2,12 @@
     Comprehensive note will be included to better understand the code
     
     Authored by controller group
-    Maintained by Baotian
-
+    Maintained by Baotian， Riyueshiguang
 */
 
-#include <Arduino.h> //To enable the basic Arduino function
-
 #include <v10.h> //To include our header
-#include <wheelcal.h>
 
-#include <freertos/FreeRTOS.h> //To enable the freeRTOS system, so our car will respond more quickly
-#include <freertos/queue.h>
-#include <freertos/semphr.h>
-
-#include <QGPMaker_MotorShield.h> //To communicate with our Motorshield
-#include "PS2X_lib.h" //To communicate with our handle
+//Variables definations
 
 QueueHandle_t motorSpeedQueue;
 SemaphoreHandle_t readHandleMutex;
@@ -29,10 +20,13 @@ float angle = 0.6435011088;//Currently not designed, default to arctan(0.75)
 float length = 0.25;//Currently not designed, default to 0.25
 float radius = 0.03;//The radius of our wheel
 
+//Main programme
+
 void setup(){
 
     Serial.begin(9600); //Due to the cable, we cannot set a higher baud rate
-
+    Serial.println("MiniCar initialize! Version:V1.0");
+    
     //initialize our Motorboard
     bool setUpResult = initShield();
     if (setUpResult != true){
@@ -66,6 +60,8 @@ bool initShield(){
     return true;//This ugly library cannot give response, so we'll return true anyway
 
 };//initialize our Motorboard
+
+//Functions definations
 
 bool pipeInit(){
 
