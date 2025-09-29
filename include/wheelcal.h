@@ -55,7 +55,7 @@ extern float radius;//The radius of our wheel
 //function definition
 void writeMotorAngSpd(void *pvParameters);
 
-void calHandlePara(void *pvParameters);
+void calHandleParaWheel(void *pvParameters);
 
 void getHandleData(void *pvParameters);
 

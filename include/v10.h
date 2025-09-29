@@ -10,6 +10,7 @@
 #include <PS2X_lib.h>
 
 #include <wheelcal.h>
+#include <servocal.h>
 
 #include <freertos/FreeRTOS.h> //To enable the freeRTOS system, so our car will respond more quickly
 #include <freertos/queue.h>

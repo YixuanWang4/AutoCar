@@ -5,6 +5,7 @@
     Maintained by Baotian， Riyueshiguang
 */
 
+#include <Arduino.h>
 #include <v10.h> //To include our header
 
 //Variables definations
@@ -29,37 +30,43 @@ void setup(){
     
     //initialize our Motorboard
     bool setUpResult = initShield();
-    if (setUpResult != true){
+    if (!setUpResult){
         Serial.println("W1:Cannot initialize Motorboard!");
         while(true){
             vTaskDelay(50);//Since we cannot initialize pipe, we'll just stop here for check
-        };
-    };
+        }
+    }
 
     bool pipeInitResult = pipeInit();
-    if(pipeInitResult != true){
+    if(!pipeInitResult){
         Serial.println("W2:Cannot initialize FreeRTOS pipe!");
         while(true){
             vTaskDelay(50);//Since we cannot initialize Motorboard, we'll just stop here for check
-        };
-    };
+        }
+    }
 
     xTaskCreate(getHandleData, "getHandleData", 4096, NULL, 1, NULL);
-    xTaskCreate(calHandlePara, "calHandlePara", 4096, NULL, 1, NULL);
+    xTaskCreate(calHandleParaWheel, "calHandleParaWheel", 4096, NULL, 1, NULL);
     xTaskCreate(writeMotorAngSpd, "writeMotorAngSpd", 4096, NULL, 1, NULL);
 
-};//To initialize our autocar and set our functions
+}//To initialize our autocar and set our functions
 
 void loop(){
 
-};//The loop function will do nothing, since work has been added to the rtos system
+}//The loop function will do nothing, since work has been added to the rtos system
 
 bool initShield(){
     
     Shield.begin(50);
-    return true;//This ugly library cannot give response, so we'll return true anyway
 
-};//initialize our Motorboard
+    int error = ps2x.config_gamepad(18,23,5,19, true, true);
+    if(error != 0){
+        return false;
+    }
+
+    return true;
+
+}//initialize our Motorboard
 
 //Functions definations
 
@@ -69,7 +76,7 @@ bool pipeInit(){
     if(motorSpeedQueue == NULL){
         Serial.println("W3:Cannot initialize queue!");
         return false;
-    };
+    }
 
     readHandleMutex = xSemaphoreCreateMutex();
     if (readHandleMutex == NULL) {
@@ -79,4 +86,4 @@ bool pipeInit(){
 
     return true;
 
-};//init the pipe we'll use to transmit numbers
+}//init the pipe we'll use to transmit numbers

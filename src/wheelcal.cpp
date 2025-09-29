@@ -38,7 +38,7 @@ void getHandleData(void *pvParameters){
 
 };//Get data form our handle
 
-void calHandlePara(void *pvParameters){
+void calHandleParaWheel(void *pvParameters){
 
     HandleData handleData;
     CarStatus carStatus;
@@ -47,15 +47,10 @@ void calHandlePara(void *pvParameters){
     while(true){
 
         if(xSemaphoreTake(readHandleMutex, portMAX_DELAY) == pdPASS){
-            handleData.l1 = ps2x.Button(PSB_L1);//Boolean
-            handleData.l2 = ps2x.Button(PSB_R2);
-            handleData.r1 = ps2x.Button(PSB_R1);
+            handleData.l2 = ps2x.Button(PSB_R2);//Boolean
             handleData.r2 = ps2x.Button(PSB_R2);
-
             handleData.lx = ps2x.Analog(PSS_LX);//Byte
             handleData.ly = ps2x.Analog(PSS_LY);
-            handleData.rx = ps2x.Analog(PSS_RX);
-            handleData.ry = ps2x.Analog(PSS_RY);
 
             xSemaphoreGive(readHandleMutex);
 
