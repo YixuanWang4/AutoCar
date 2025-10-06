@@ -1,10 +1,12 @@
 #include <Arduino.h>
-#include <test2.h>
 
 #include <PS2X_lib.h>
 
+//Test Cpp for examining PS2 handle
+
+extern PS2X ps2x;
+
 unsigned long lastTime = 0;
-PS2X ps2x;
 
 void setup(){
     Serial.begin(9600);

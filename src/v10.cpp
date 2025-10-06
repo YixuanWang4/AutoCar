@@ -13,12 +13,12 @@
 QueueHandle_t motorSpeedQueue;
 SemaphoreHandle_t readHandleMutex;
 
-TickType_t readHandleDelay = 10;//The rate of reading handle
-TickType_t calHandleDelay = 10;//The rate of calculating data
-TickType_t writeDelay = 10;//The rate of writing data to motor
+TickType_t readHandleDelay = 8;//The rate of reading handle
+TickType_t calHandleDelay = 20;//The rate of calculating data
+TickType_t writeDelay = 5;//The rate of writing data to motor
 float maxSpeed = 1000;//The maxspeed of minicar, default to 1000 mm/s
-float angle = 0.6435011088;//Currently not designed, default to arctan(0.75)
-float length = 0.25;//Currently not designed, default to 0.25
+float angle = 0.7086;//Currently not designed, default to arctan(0.75)
+float length = 0.136;//Currently not designed, default to 0.25
 float radius = 0.03;//The radius of our wheel
 
 //Main programme
@@ -26,16 +26,15 @@ float radius = 0.03;//The radius of our wheel
 void setup(){
 
     Serial.begin(9600); //Due to the cable, we cannot set a higher baud rate
-    Serial.println("MiniCar initialize! Version:V1.0");
+    Serial.println("MiniCar initialize! Version:V1.1");
+
+    for(int count = 0; count < 10; count ++){
+        Serial.print('.');
+        vTaskDelay(100);
+    }
     
     //initialize our Motorboard
-    bool setUpResult = initShield();
-    if (!setUpResult){
-        Serial.println("W1:Cannot initialize Motorboard!");
-        while(true){
-            vTaskDelay(50);//Since we cannot initialize pipe, we'll just stop here for check
-        }
-    }
+    initShield();
 
     bool pipeInitResult = pipeInit();
     if(!pipeInitResult){
@@ -45,9 +44,9 @@ void setup(){
         }
     }
 
-    xTaskCreate(getHandleData, "getHandleData", 4096, NULL, 1, NULL);
-    xTaskCreate(calHandleParaWheel, "calHandleParaWheel", 4096, NULL, 1, NULL);
-    xTaskCreate(writeMotorAngSpd, "writeMotorAngSpd", 4096, NULL, 1, NULL);
+    xTaskCreate(getHandleData, "getHandleData", 2048, NULL, 1, NULL);
+    xTaskCreate(calHandleParaWheel, "calHandleParaWheel", 2048, NULL, 2, NULL);
+    xTaskCreate(writeMotorAngSpd, "writeMotorAngSpd", 2048, NULL, 3, NULL);
 
 }//To initialize our autocar and set our functions
 
@@ -72,7 +71,7 @@ bool initShield(){
 
 bool pipeInit(){
 
-    motorSpeedQueue = xQueueCreate(300, sizeof(MotorSpeed));
+    motorSpeedQueue = xQueueCreate(100, sizeof(MotorSpeed));
     if(motorSpeedQueue == NULL){
         Serial.println("W3:Cannot initialize queue!");
         return false;

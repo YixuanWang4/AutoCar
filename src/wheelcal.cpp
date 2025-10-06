@@ -8,13 +8,10 @@
 
 QGPMaker_MotorShield Shield;
 
-QGPMaker_Servo * servoL;
-QGPMaker_Servo * servoR;
-
-QGPMaker_DCMotor * motorFL;
-QGPMaker_DCMotor * motorBL;
-QGPMaker_DCMotor * motorFR;
-QGPMaker_DCMotor * motorBR;
+QGPMaker_DCMotor * motorFL = Shield.getMotor(1);
+QGPMaker_DCMotor * motorBL = Shield.getMotor(3);
+QGPMaker_DCMotor * motorFR = Shield.getMotor(2);
+QGPMaker_DCMotor * motorBR = Shield.getMotor(4);
 
 PS2X ps2x;
 
@@ -23,19 +20,14 @@ void getHandleData(void *pvParameters){
 
     while(true){
 
-        if(xSemaphoreTake(readHandleMutex, portMAX_DELAY) == pdPASS){
+        if(xSemaphoreTake(readHandleMutex, 2) == pdPASS){
             ps2x.read_gamepad(false, 0);
 
             xSemaphoreGive(readHandleMutex);
-        };
-
-        
-
+        }
         vTaskDelay(readHandleDelay);
-    };
-
+    }
     vTaskDelete(NULL);
-
 };//Get data form our handle
 
 void calHandleParaWheel(void *pvParameters){
@@ -46,54 +38,59 @@ void calHandleParaWheel(void *pvParameters){
 
     while(true){
 
-        if(xSemaphoreTake(readHandleMutex, portMAX_DELAY) == pdPASS){
-            handleData.l2 = ps2x.Button(PSB_R2);//Boolean
+        if(xSemaphoreTake(readHandleMutex, 2) == pdPASS){
+            handleData.l2 = ps2x.Button(PSB_L2);//Boolean
             handleData.r2 = ps2x.Button(PSB_R2);
             handleData.lx = ps2x.Analog(PSS_LX);//Byte
             handleData.ly = ps2x.Analog(PSS_LY);
 
             xSemaphoreGive(readHandleMutex);
+        }
 
-            carStatus.vy = (float)map(handleData.ly, 0, 256, maxSpeed, -maxSpeed) / 1000.0;
-            carStatus.vx = (float)map(handleData.lx, 0, 256, -maxSpeed, maxSpeed) / 1000.0;
-            carStatus.w = ((float)handleData.r2 - (float)handleData.l2) * M_PI / 4.0;
-            //Turning speed: pai/4 (s^-1)
+        //Serial.print("lx");Serial.println(handleData.lx);
 
-            motorSpeed.wFL = (carStatus.vx + carStatus.vy +
-                            sqrt(2) * cos(M_PI_4 - angle) * carStatus.w * length) / radius;
-            motorSpeed.wFR = (-carStatus.vx + carStatus.vy -
-                            sqrt(2) * cos(M_PI_4 - angle) * carStatus.w * length) / radius;
-            motorSpeed.wBL = (-carStatus.vx + carStatus.vy + 
-                            sqrt(2) * cos(M_PI_4 - angle) * carStatus.w * length) / radius;
-            motorSpeed.wBR = (carStatus.vx + carStatus.vy - 
-                            sqrt(2) * cos(M_PI_4 - angle) * carStatus.w * length) / radius;
-        };  
+        carStatus.vy = (float)map(handleData.ly, 0, 255, maxSpeed, -maxSpeed) / 1000.0;
+        carStatus.vx = (float)map(handleData.lx, 0, 255, -maxSpeed, maxSpeed) / 1000.0;
+        carStatus.w = ((float)handleData.r2 - (float)handleData.l2) * M_PI ;
 
-        if(xQueueSend(motorSpeedQueue, &motorSpeed, 0) != pdPASS){
+        //Turning speed: pai/4 (s^-1)
+
+        motorSpeed.wFL = (carStatus.vx + carStatus.vy +
+                        sqrt(2) * cos(M_PI_4 - angle) * carStatus.w * length) / radius;
+        motorSpeed.wFR = (0 - carStatus.vx + carStatus.vy -
+                        sqrt(2) * cos(M_PI_4 - angle) * carStatus.w * length) / radius;
+        motorSpeed.wBL = (0 - carStatus.vx + carStatus.vy + 
+                        sqrt(2) * cos(M_PI_4 - angle) * carStatus.w * length) / radius;
+        motorSpeed.wBR = (carStatus.vx + carStatus.vy - 
+                        sqrt(2) * cos(M_PI_4 - angle) * carStatus.w * length) / radius;
+
+        //Serial.print("wfl speed:");Serial.println(motorSpeed.wFL);
+
+        if(xQueueSend(motorSpeedQueue, &motorSpeed, 2) != pdPASS){
             Serial.println("WW1:Queue was full!");
-        };
+        }
 
         vTaskDelay(calHandleDelay);
         
-    };
+    }
 
     vTaskDelete(NULL);
 
-};//Calculate angular speed from handle data
+}//Calculate angular speed from handle data
 
 void writeMotorAngSpd(void *pvParameters){
 
     MotorSpeed motorSpeed;
 
     while(true){
-        if(xQueueReceive(motorSpeedQueue, &motorSpeed, portMAX_DELAY) != pdPASS){
+        if(xQueueReceive(motorSpeedQueue, &motorSpeed, 2) != pdPASS){
             Serial.println("WW2:Cannot receive data from queue!");
         };
 
-        motorFL->setSpeed(map(constrain(abs(motorSpeed.wFL), 0, 921), 0, 921.5, 0, 256));
-        motorFR->setSpeed(map(constrain(abs(motorSpeed.wFR), 0, 921), 0, 921.5, 0, 256));
-        motorBL->setSpeed(map(constrain(abs(motorSpeed.wBL), 0, 921), 0, 921.5, 0, 256));
-        motorBR->setSpeed(map(constrain(abs(motorSpeed.wBR), 0, 921), 0, 921.5, 0, 256));
+        motorFL->setSpeed(map(constrain(abs(motorSpeed.wFL), 0, 87), 0, 87, 0, 225));
+        motorFR->setSpeed(map(constrain(abs(motorSpeed.wFR), 0, 87), 0, 87, 0, 225));
+        motorBL->setSpeed(map(constrain(abs(motorSpeed.wBL), 0, 87), 0, 87, 0, 225));
+        motorBR->setSpeed(map(constrain(abs(motorSpeed.wBR), 0, 87), 0, 87, 0, 225));
 
         if(motorSpeed.wFL > 0){
             motorFL->run(FORWARD);
@@ -121,5 +118,5 @@ void writeMotorAngSpd(void *pvParameters){
 
         vTaskDelay(writeDelay);
 
-    };
+    }
 };//Write speed order to the motor
