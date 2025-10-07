@@ -14,11 +14,11 @@ QueueHandle_t motorSpeedQueue;
 SemaphoreHandle_t readHandleMutex;
 
 TickType_t readHandleDelay = 8;//The rate of reading handle
-TickType_t calHandleDelay = 20;//The rate of calculating data
+TickType_t calHandleDelay = 15;//The rate of calculating data
 TickType_t writeDelay = 5;//The rate of writing data to motor
 float maxSpeed = 1000;//The maxspeed of minicar, default to 1000 mm/s
-float angle = 0.7086;//Currently not designed, default to arctan(0.75)
-float length = 0.136;//Currently not designed, default to 0.25
+float angle = 0.7086;
+float length = 0.136;
 float radius = 0.03;//The radius of our wheel
 
 //Main programme
@@ -26,7 +26,7 @@ float radius = 0.03;//The radius of our wheel
 void setup(){
 
     Serial.begin(9600); //Due to the cable, we cannot set a higher baud rate
-    Serial.println("MiniCar initialize! Version:V1.1");
+    Serial.println("MiniCar initialize! Version:V1.2");
 
     for(int count = 0; count < 10; count ++){
         Serial.print('.');
