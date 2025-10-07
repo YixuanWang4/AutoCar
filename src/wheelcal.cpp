@@ -50,9 +50,9 @@ void calHandleParaWheel(void *pvParameters){
 
             carStatus.vy = (float)map(handleData.ly, 0, 255, maxSpeed, -maxSpeed) / 1000.0;
             carStatus.vx = (float)map(handleData.lx, 0, 255, -maxSpeed, maxSpeed) / 1000.0;
-            carStatus.w = ((float)handleData.r2 - (float)handleData.l2) * M_PI ;
+            carStatus.w = ((float)handleData.r2 - (float)handleData.l2) * M_PI / 1.15 ;
 
-            //Turning speed: pai/4 (s^-1)
+            //Turning speed: pai/1.15 (s^-1)
 
             motorSpeed.wFL = (carStatus.vx + carStatus.vy +
                             sqrt(2) * cos(M_PI_4 - angle) * carStatus.w * length) / radius;
@@ -89,10 +89,10 @@ void writeMotorAngSpd(void *pvParameters){
 
         }else{
 
-            motorFL->setSpeed(map(constrain(abs(motorSpeed.wFL), 0, 87), 0, 87, 10, 255));
-            motorFR->setSpeed(map(constrain(abs(motorSpeed.wFR), 0, 87), 0, 87, 10, 255));
-            motorBL->setSpeed(map(constrain(abs(motorSpeed.wBL), 0, 87), 0, 87, 10, 255));
-            motorBR->setSpeed(map(constrain(abs(motorSpeed.wBR), 0, 87), 0, 87, 10, 255));
+            motorFL->setSpeed(map(constrain(abs(motorSpeed.wFL), 0, 85), 0, 85, 10, 255));
+            motorFR->setSpeed(map(constrain(abs(motorSpeed.wFR), 0, 85), 0, 85, 10, 255));
+            motorBL->setSpeed(map(constrain(abs(motorSpeed.wBL), 0, 85), 0, 85, 10, 255));
+            motorBR->setSpeed(map(constrain(abs(motorSpeed.wBR), 0, 85), 0, 85, 10, 255));
 
             if(motorSpeed.wFL > 0.5){
                 motorFL->run(FORWARD);
