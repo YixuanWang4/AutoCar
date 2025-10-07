@@ -11,10 +11,12 @@
 //Variables definations
 
 QueueHandle_t motorSpeedQueue;
+QueueHandle_t servoSpeedQueue;
 SemaphoreHandle_t readHandleMutex;
 
 TickType_t readHandleDelay = 8;//The rate of reading handle
-TickType_t calHandleDelay = 15;//The rate of calculating data
+TickType_t calMotorDelay = 15;//The rate of calculating data
+TickType_t calServoDelay = 15;
 TickType_t writeDelay = 5;//The rate of writing data to motor
 float maxSpeed = 1000;//The maxspeed of minicar, default to 1000 mm/s
 float angle = 0.7153829260635;
@@ -30,6 +32,7 @@ void setup(){
 
     //initialize our Motorboard
     initShield();
+    //servoInit();
 
     bool pipeInitResult = pipeInit();
     if(!pipeInitResult){
@@ -68,7 +71,13 @@ bool pipeInit(){
 
     motorSpeedQueue = xQueueCreate(100, sizeof(MotorSpeed));
     if(motorSpeedQueue == NULL){
-        Serial.println("W3:Cannot initialize queue!");
+        Serial.println("W31:Cannot initialize motor queue!");
+        return false;
+    }
+
+    servoSpeedQueue = xQueueCreate(100, sizeof(ServoSpeed));
+    if(servoSpeedQueue == NULL){
+        Serial.println("W32:Cannot initialize servo queue!");
         return false;
     }
 
@@ -81,3 +90,13 @@ bool pipeInit(){
     return true;
 
 }//init the pipe we'll use to transmit numbers
+
+bool servoInit(){
+
+    servoD->writeServo(0);
+    servoU->writeServo(90);
+    servoR->writeServo(0);
+    servoF->writeServo(0);
+
+    return true;
+}

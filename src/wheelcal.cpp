@@ -41,8 +41,8 @@ void calHandleParaWheel(void *pvParameters){
     while(true){
 
         if(xSemaphoreTake(readHandleMutex, 5) == pdPASS){
-            handleData.l2 = ps2x.Button(PSB_L2);//Boolean
-            handleData.r2 = ps2x.Button(PSB_R2);
+            handleData.l1 = ps2x.Button(PSB_L1);//Boolean
+            handleData.r1 = ps2x.Button(PSB_R1);
             handleData.lx = ps2x.Analog(PSS_LX);//Byte
             handleData.ly = ps2x.Analog(PSS_LY);
 
@@ -50,7 +50,7 @@ void calHandleParaWheel(void *pvParameters){
 
             carStatus.vy = (float)map(handleData.ly, 0, 255, maxSpeed, -maxSpeed) / 1000.0;
             carStatus.vx = (float)map(handleData.lx, 0, 255, -maxSpeed, maxSpeed) / 1000.0;
-            carStatus.w = ((float)handleData.r2 - (float)handleData.l2) * M_PI / 1.15 ;
+            carStatus.w = ((float)handleData.r1 - (float)handleData.l1) * M_PI / 1.15 ;
 
             //Turning speed: pai/1.15 (s^-1)
 
@@ -70,7 +70,7 @@ void calHandleParaWheel(void *pvParameters){
             }
         }
 
-        vTaskDelay(calHandleDelay);
+        vTaskDelay(calMotorDelay);
         
     }
 

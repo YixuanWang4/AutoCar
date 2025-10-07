@@ -20,7 +20,6 @@ typedef struct {
 
 typedef struct {
     float vx, vy, w;
-
 } CarStatus;
 
 typedef struct {
@@ -28,9 +27,6 @@ typedef struct {
 } MotorSpeed;
 
 extern QGPMaker_MotorShield Shield;
-
-extern QGPMaker_Servo * servoL;
-extern QGPMaker_Servo * servoR;
 
 extern QGPMaker_DCMotor * motorFL;
 extern QGPMaker_DCMotor * motorBL;
@@ -45,7 +41,7 @@ extern SemaphoreHandle_t readHandleMutex;
 //properties of minicar
 
 extern TickType_t readHandleDelay;//The rate of reading handle
-extern TickType_t calHandleDelay;//The rate of calculating data
+extern TickType_t calMotorDelay;//The rate of calculating data
 extern TickType_t writeDelay;//The rate of writing data to motor
 extern float maxSpeed;//The maxspeed of minicar, default to 1000 mm/s
 extern float angle;//Currently not designed, default to arctan(0.75)

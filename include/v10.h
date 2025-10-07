@@ -20,24 +20,26 @@
 
 extern QGPMaker_MotorShield Shield;
 
-extern QGPMaker_Servo * servoL;
-extern QGPMaker_Servo * servoR;
-
 extern QGPMaker_DCMotor * motorFL;
 extern QGPMaker_DCMotor * motorBL;
 extern QGPMaker_DCMotor * motorFR;
 extern QGPMaker_DCMotor * motorBR;
 
+extern QGPMaker_Servo * servoD;
+extern QGPMaker_Servo * servoU;
+extern QGPMaker_Servo * servoR;
+extern QGPMaker_Servo * servoF;
+
 extern PS2X ps2x;
 
 extern QueueHandle_t motorSpeedQueue;
+extern QueueHandle_t servoSpeedQueue;
 extern SemaphoreHandle_t readHandleMutex;
 
 //function declaration
 
 bool initShield(void);
 bool pipeInit(void);
-
-
+bool servoInit(void);
 
 #endif
