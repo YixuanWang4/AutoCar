@@ -20,7 +20,7 @@ void getHandleData(void *pvParameters){
 
     while(true){
 
-        if(xSemaphoreTake(readHandleMutex, 2) == pdPASS){
+        if(xSemaphoreTake(readHandleMutex, 3) == pdPASS){
             ps2x.read_gamepad(false, 0);
 
             xSemaphoreGive(readHandleMutex);
@@ -89,10 +89,10 @@ void writeMotorAngSpd(void *pvParameters){
 
         }else{
 
-            motorFL->setSpeed(map(constrain(abs(motorSpeed.wFL), 0, 87), 0, 87, 10, 225));
-            motorFR->setSpeed(map(constrain(abs(motorSpeed.wFR), 0, 87), 0, 87, 10, 225));
-            motorBL->setSpeed(map(constrain(abs(motorSpeed.wBL), 0, 87), 0, 87, 10, 225));
-            motorBR->setSpeed(map(constrain(abs(motorSpeed.wBR), 0, 87), 0, 87, 10, 225));
+            motorFL->setSpeed(map(constrain(abs(motorSpeed.wFL), 0, 87), 0, 87, 10, 255));
+            motorFR->setSpeed(map(constrain(abs(motorSpeed.wFR), 0, 87), 0, 87, 10, 255));
+            motorBL->setSpeed(map(constrain(abs(motorSpeed.wBL), 0, 87), 0, 87, 10, 255));
+            motorBR->setSpeed(map(constrain(abs(motorSpeed.wBR), 0, 87), 0, 87, 10, 255));
 
             if(motorSpeed.wFL > 0.5){
                 motorFL->run(FORWARD);
