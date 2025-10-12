@@ -8,10 +8,10 @@
 
 QGPMaker_MotorShield Shield;
 
-QGPMaker_DCMotor * motorFL = Shield.getMotor(1);
-QGPMaker_DCMotor * motorBL = Shield.getMotor(3);
-QGPMaker_DCMotor * motorFR = Shield.getMotor(2);
-QGPMaker_DCMotor * motorBR = Shield.getMotor(4);
+QGPMaker_DCMotor * motorFL;
+QGPMaker_DCMotor * motorBL;
+QGPMaker_DCMotor * motorFR;
+QGPMaker_DCMotor * motorBR;
 
 PS2X ps2x;
 
@@ -20,7 +20,7 @@ void getHandleData(void *pvParameters){
 
     while(true){
 
-        if(xSemaphoreTake(readHandleMutex, 3) == pdPASS){
+        if(xSemaphoreTake(readHandleMutex, portMAX_DELAY) == pdPASS){
             ps2x.read_gamepad(false, 0);
 
             xSemaphoreGive(readHandleMutex);
@@ -40,19 +40,28 @@ void calHandleParaWheel(void *pvParameters){
 
     while(true){
 
-        if(xSemaphoreTake(readHandleMutex, 5) == pdPASS){
+        if(xSemaphoreTake(readHandleMutex, portMAX_DELAY) == pdPASS){
             handleData.l1 = ps2x.Button(PSB_L1);//Boolean
             handleData.r1 = ps2x.Button(PSB_R1);
             handleData.lx = ps2x.Analog(PSS_LX);//Byte
             handleData.ly = ps2x.Analog(PSS_LY);
+            handleData.select = ps2x.ButtonPressed(PSB_SELECT);
 
             xSemaphoreGive(readHandleMutex);
 
+            if(handleData.select){
+                if(maxSpeed > 750){
+                    maxSpeed = 300;
+                }else{
+                    maxSpeed = 1000;
+                }
+            }
+
             carStatus.vy = (float)map(handleData.ly, 0, 255, maxSpeed, -maxSpeed) / 1000.0;
             carStatus.vx = (float)map(handleData.lx, 0, 255, -maxSpeed, maxSpeed) / 1000.0;
-            carStatus.w = ((float)handleData.r1 - (float)handleData.l1) * M_PI / 1.15 ;
+            carStatus.w = ((float)handleData.r1 - (float)handleData.l1) * M_PI * maxSpeed / 700.0;
 
-            //Turning speed: pai/1.15 (s^-1)
+            //Turning speed: pai (s^-1)
 
             motorSpeed.wFL = (carStatus.vx + carStatus.vy +
                             sqrt(2) * cos(M_PI_4 - angle) * carStatus.w * length) / radius;
@@ -65,8 +74,8 @@ void calHandleParaWheel(void *pvParameters){
 
             //Serial.print("wfl speed:");Serial.println(motorSpeed.wFL);
 
-            if(xQueueSend(motorSpeedQueue, &motorSpeed, 2) != pdPASS){
-                Serial.println("WW1:Queue was full!");
+            if(xQueueSend(motorSpeedQueue, &motorSpeed, portMAX_DELAY) != pdPASS){
+                xQueueOverwrite(motorSpeedQueue, &motorSpeed);
             }
         }
 
@@ -83,47 +92,44 @@ void writeMotorAngSpd(void *pvParameters){
     MotorSpeed motorSpeed;
 
     while(true){
-        if(xQueueReceive(motorSpeedQueue, &motorSpeed, 5) != pdPASS){
+        if(xQueueReceive(motorSpeedQueue, &motorSpeed, portMAX_DELAY) != pdPASS){
 
             Serial.println("WW2:Cannot receive data from queue!");
 
         }else{
 
-            motorFL->setSpeed(map(constrain(abs(motorSpeed.wFL), 0, 85), 0, 85, 10, 255));
-            motorFR->setSpeed(map(constrain(abs(motorSpeed.wFR), 0, 85), 0, 85, 10, 255));
-            motorBL->setSpeed(map(constrain(abs(motorSpeed.wBL), 0, 85), 0, 85, 10, 255));
-            motorBR->setSpeed(map(constrain(abs(motorSpeed.wBR), 0, 85), 0, 85, 10, 255));
+            motorFL->setSpeed(map(constrain(abs(motorSpeed.wFL), 0, 85), 0, 85, 0, 255));
+            motorFR->setSpeed(map(constrain(abs(motorSpeed.wFR), 0, 85), 0, 85, 0, 255));
+            motorBL->setSpeed(map(constrain(abs(motorSpeed.wBL), 0, 85), 0, 85, 0, 255));
+            motorBR->setSpeed(map(constrain(abs(motorSpeed.wBR), 0, 85), 0, 85, 0, 255));
 
-            if(motorSpeed.wFL > 0.5){
+            if(motorSpeed.wFL > 0.2){
                 motorFL->run(FORWARD);
-            }else if(motorSpeed.wFL < -0.5){
+            }else if(motorSpeed.wFL < -0.2){
                 motorFL->run(BACKWARD);
             }else{
                 motorFL->run(RELEASE);
             }
 
-            if(motorSpeed.wFR > 0.5){
+            if(motorSpeed.wFR > 0.2){
                 motorFR->run(FORWARD);
-            }else if(motorSpeed.wFR < -0.5){
+            }else if(motorSpeed.wFR < -0.2){
                 motorFR->run(BACKWARD);
             }else{
                 motorFR->run(RELEASE);
             }
 
-            if(motorSpeed.wBL > 0.5){
+            if(motorSpeed.wBL > 0.2){
                 motorBL->run(FORWARD);
-            }else if(motorSpeed.wBL < -0.5){
+            }else if(motorSpeed.wBL < -0.2){
                 motorBL->run(BACKWARD);
             }else{
                 motorBL->run(RELEASE);
             }
 
-            if(motorSpeed.wBR > 0.5){
+            if(motorSpeed.wBR > 0.2){
                 motorBR->run(FORWARD);
-            }else if(motorSpeed.wBR < -0.5
-            
-            
-            ){
+            }else if(motorSpeed.wBR < -0.2){
                 motorBR->run(BACKWARD);
             }else{
                 motorBR->run(RELEASE);

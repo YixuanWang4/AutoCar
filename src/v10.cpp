@@ -16,8 +16,13 @@ SemaphoreHandle_t readHandleMutex;
 
 TickType_t readHandleDelay = 8;//The rate of reading handle
 TickType_t calMotorDelay = 15;//The rate of calculating data
-TickType_t calServoDelay = 15;
+TickType_t calServoDelay = 30;
 TickType_t writeDelay = 5;//The rate of writing data to motor
+TickType_t writeServoDelay = 15;
+int servoRotateTime = 30;
+
+int suOffset = -10;
+
 float maxSpeed = 1000;//The maxspeed of minicar, default to 1000 mm/s
 float angle = 0.7153829260635;
 float length = 0.136452372643;
@@ -32,7 +37,7 @@ void setup(){
 
     //initialize our Motorboard
     initShield();
-    //servoInit();
+    servoInit();
 
     bool pipeInitResult = pipeInit();
     if(!pipeInitResult){
@@ -45,6 +50,8 @@ void setup(){
     xTaskCreate(getHandleData, "getHandleData", 2048, NULL, 1, NULL);
     xTaskCreate(calHandleParaWheel, "calHandleParaWheel", 2048, NULL, 2, NULL);
     xTaskCreate(writeMotorAngSpd, "writeMotorAngSpd", 2048, NULL, 3, NULL);
+    xTaskCreate(calHandleDataServo, "calHandleDataServo", 2048, NULL, 2, NULL);
+    xTaskCreate(writeServoAngle, "writeServoAngle", 2048, NULL, 3, NULL);
 
 }//To initialize our autocar and set our functions
 
@@ -55,6 +62,11 @@ void loop(){
 bool initShield(){
     
     Shield.begin(50);
+
+    motorFL = Shield.getMotor(2);
+    motorBL = Shield.getMotor(3);
+    motorFR = Shield.getMotor(1);
+    motorBR = Shield.getMotor(4);
 
     int error = ps2x.config_gamepad(18,23,5,19, true, true);
     if(error != 0){
@@ -93,10 +105,10 @@ bool pipeInit(){
 
 bool servoInit(){
 
-    servoD->writeServo(0);
-    servoU->writeServo(90);
-    servoR->writeServo(0);
-    servoF->writeServo(0);
+    servoD->writeServo(45);
+    servoU->writeServo(45 + suOffset);
+    servoR->writeServo(10);
+    servoF->writeServo(30);
 
     return true;
 }
