@@ -30,7 +30,7 @@ void getHandleData(void *pvParameters){
 
     vTaskDelete(NULL);
     
-};//Get data form our handle
+}//Get data form our handle
 
 void calHandleParaWheel(void *pvParameters){
 
@@ -46,20 +46,19 @@ void calHandleParaWheel(void *pvParameters){
             handleData.lx = ps2x.Analog(PSS_LX);//Byte
             handleData.ly = ps2x.Analog(PSS_LY);
             handleData.select = ps2x.ButtonPressed(PSB_SELECT);
-
             xSemaphoreGive(readHandleMutex);
 
             if(handleData.select){
                 if(maxSpeed > 750){
-                    maxSpeed = 300;
+                    maxSpeed = 500;
                 }else{
                     maxSpeed = 1000;
                 }
             }
 
-            carStatus.vy = (float)map(handleData.ly, 0, 255, maxSpeed, -maxSpeed) / 1000.0;
+            carStatus.vy = (float)map(handleData.ly, 0, 255, -maxSpeed, maxSpeed) / 1000.0;
             carStatus.vx = (float)map(handleData.lx, 0, 255, -maxSpeed, maxSpeed) / 1000.0;
-            carStatus.w = ((float)handleData.r1 - (float)handleData.l1) * M_PI * maxSpeed / 700.0;
+            carStatus.w = ((float)handleData.l1 - (float)handleData.r1) * M_PI * maxSpeed / 700.0;
 
             //Turning speed: pai (s^-1)
 
@@ -139,4 +138,4 @@ void writeMotorAngSpd(void *pvParameters){
         vTaskDelay(writeDelay);
 
     }
-};//Write speed order to the motor
+}//Write speed order to the motor

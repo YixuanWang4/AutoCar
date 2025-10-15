@@ -105,10 +105,14 @@ bool pipeInit(){
 
 bool servoInit(){
 
-    servoD->writeServo(45);
-    servoU->writeServo(45 + suOffset);
+    //servoD->writeServo(45);
+    servoD->writeServo(135);
+    //servoU->writeServo(45 + suOffset);
+    servoU->writeServo(135 + suOffset);
     servoR->writeServo(10);
     servoF->writeServo(30);
-
+    servoGL->writeServo(170);
+    vTaskDelay(1500);
+    servoGR->writeServo(10);
     return true;
 }
