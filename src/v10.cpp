@@ -5,28 +5,7 @@
     Maintained by Baotian， Riyueshiguang
 */
 
-#include <Arduino.h>
 #include <v10.h> //To include our header
-
-//Variables definations
-
-QueueHandle_t motorSpeedQueue;
-QueueHandle_t servoSpeedQueue;
-SemaphoreHandle_t readHandleMutex;
-
-TickType_t readHandleDelay = 8;//The rate of reading handle
-TickType_t calMotorDelay = 15;//The rate of calculating data
-TickType_t calServoDelay = 30;
-TickType_t writeDelay = 5;//The rate of writing data to motor
-TickType_t writeServoDelay = 15;
-int servoRotateTime = 30;
-
-int suOffset = -10;
-
-float maxSpeed = 1000;//The maxspeed of minicar, default to 1000 mm/s
-float angle = 0.7153829260635;
-float length = 0.136452372643;
-float radius = 0.031;//The radius of our wheel
 
 //Main programme
 
@@ -110,7 +89,7 @@ bool servoInit(){
     //servoU->writeServo(45 + suOffset);
     servoU->writeServo(135 + suOffset);
     servoR->writeServo(10);
-    servoF->writeServo(30);
+    servoF->writeServo(0);
     servoGL->writeServo(170);
     vTaskDelay(1500);
     servoGR->writeServo(10);

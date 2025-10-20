@@ -45,16 +45,7 @@ void calHandleParaWheel(void *pvParameters){
             handleData.r1 = ps2x.Button(PSB_R1);
             handleData.lx = ps2x.Analog(PSS_LX);//Byte
             handleData.ly = ps2x.Analog(PSS_LY);
-            handleData.select = ps2x.ButtonPressed(PSB_SELECT);
             xSemaphoreGive(readHandleMutex);
-
-            if(handleData.select){
-                if(maxSpeed > 750){
-                    maxSpeed = 500;
-                }else{
-                    maxSpeed = 1000;
-                }
-            }
 
             carStatus.vy = (float)map(handleData.ly, 0, 255, -maxSpeed, maxSpeed) / 1000.0;
             carStatus.vx = (float)map(handleData.lx, 0, 255, -maxSpeed, maxSpeed) / 1000.0;
