@@ -13,7 +13,8 @@ typedef struct {
     bool padUp, padDown, padLeft, padRight, 
          l1, l2, r1, r2,
          green, red, blue, pink,
-         select, start;
+         select, start,
+         padL3, padR3;
     byte lx, ly, rx, ry;
 
 } HandleData;

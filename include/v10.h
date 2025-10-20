@@ -18,6 +18,24 @@
 
 //varaible declaration
 
+QueueHandle_t motorSpeedQueue;
+QueueHandle_t servoSpeedQueue;
+SemaphoreHandle_t readHandleMutex;
+
+TickType_t readHandleDelay = 8;//The rate of reading handle 8
+TickType_t calMotorDelay = 15;//The rate of calculating data 15
+TickType_t calServoDelay = 30; //30
+TickType_t writeDelay = 5;//The rate of writing data to motor 5
+TickType_t writeServoDelay = 10; //15
+int servoRotateTime = 30;
+
+int suOffset = -10;
+
+float maxSpeed = 1000;//The maxspeed of minicar, default to 1000 mm/s
+float angle = 0.7153829260635;
+float length = 0.136452372643;
+float radius = 0.031;//The radius of our wheel
+
 extern QGPMaker_MotorShield Shield;
 
 extern QGPMaker_DCMotor * motorFL;
