@@ -14,8 +14,11 @@ QGPMaker_Servo * servoGR = Shield.getServo(5);
 
 void calHandleDataServo(void * parameters){
 
-    HandleData handleData;
-    ServoSpeed servoSpeed;
+
+
+    static HandleData handleData;
+    static ServoSpeed servoSpeed;
+    
 
     while(true){
         if(xSemaphoreTake(readHandleMutex, portMAX_DELAY) == pdPASS){
@@ -63,6 +66,8 @@ void calHandleDataServo(void * parameters){
                 xQueueOverwrite(servoSpeedQueue, &servoSpeed);
             }
 
+            
+
         }
 
         vTaskDelay(calServoDelay);
@@ -72,7 +77,7 @@ void calHandleDataServo(void * parameters){
 
 void writeServoAngle(void * parameters){
     ServoSpeed servoSpeed;
-    byte dAng = 135, uAng = 135, rAng = 10;
+    byte dAng = 135, uAng = 135, rAng = 0;
 
     servoGR->writeServo(135);
     vTaskDelay(1500);
@@ -86,43 +91,45 @@ void writeServoAngle(void * parameters){
                     servoD->writeServo(constrain(servoD->readDegrees() + servoSpeed.cirSpd, 0, 180));
                     servoU->writeServo(constrain(servoU->readDegrees() - servoSpeed.cirSpd + servoSpeed.risSpd, 0, 180));
                     servoR->writeServo(constrain(servoR->readDegrees() + servoSpeed.rotSpd, 0, 180));
-                    servoF->writeServo(constrain(servoF->readDegrees() + servoSpeed.flawSpd, 0, 135));
+                    servoF->writeServo(constrain(servoF->readDegrees() + servoSpeed.flawSpd, 0, 138));
                     break;
                 case 1://Little soldier
-                    servoD->writeServo(78);//78
-                    servoU->writeServo(34);//34
-                    servoR->writeServo(98);//98
-                    servoF->writeServo(constrain(servoF->readDegrees() + servoSpeed.flawSpd, 0, 135));
+                    servoD->writeServo(75);//75
+                    servoU->writeServo(22);//22
+                    servoR->writeServo(74);//74
+                    servoF->writeServo(45);
                     vTaskDelay(20);
                     break;
                 case 2:
-                    servoD->writeServo(67);//67
-                    servoU->writeServo(48);//48
-                    servoR->writeServo(94);//94
-                    servoF->writeServo(constrain(servoF->readDegrees() + servoSpeed.flawSpd, 0, 135));
+                    servoD->writeServo(64);//67
+                    servoU->writeServo(36);//48
+                    servoR->writeServo(74);//94
+                    servoF->writeServo(45);
                     vTaskDelay(20);
                     break;
                 case 3://Super Soldier
-                    servoD->writeServo(58);//58
-                    servoU->writeServo(62);//62
-                    servoR->writeServo(98);//98
-                    servoF->writeServo(constrain(servoF->readDegrees() + servoSpeed.flawSpd, 0, 135));
+                    servoD->writeServo(59);//58
+                    servoU->writeServo(44);//62
+                    servoR->writeServo(74);//98
+                    servoF->writeServo(45);
                     vTaskDelay(20);
                     break;
                 case 4:
                     dAng = servoD->readDegrees();
                     uAng = servoU->readDegrees();
                     rAng = servoR->readDegrees();
+                    Serial.print(dAng);Serial.print(uAng);Serial.print(rAng);
+                    
                
                     vTaskDelay(20);
                     break;
                 case 5:
+                
                     servoD->writeServo(dAng);
                     servoU->writeServo(uAng);
                     servoR->writeServo(rAng);
 
                     vTaskDelay(20);
-                    servoF->writeServo(constrain(servoF->readDegrees() + servoSpeed.flawSpd, 0, 135));
 
                     break;
                 default:

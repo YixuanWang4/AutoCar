@@ -42,10 +42,10 @@ bool initShield(){
     
     Shield.begin(50);
 
-    motorFL = Shield.getMotor(2);
-    motorBL = Shield.getMotor(3);
-    motorFR = Shield.getMotor(1);
-    motorBR = Shield.getMotor(4);
+    motorFL = Shield.getMotor(1);
+    motorBL = Shield.getMotor(4);
+    motorFR = Shield.getMotor(2);
+    motorBR = Shield.getMotor(3);
 
     int error = ps2x.config_gamepad(18,23,5,19, true, true);
     if(error != 0){
@@ -88,7 +88,7 @@ bool servoInit(){
     servoD->writeServo(135);
     //servoU->writeServo(45 + suOffset);
     servoU->writeServo(135 + suOffset);
-    servoR->writeServo(10);
+    servoR->writeServo(0);
     servoF->writeServo(0);
     servoGL->writeServo(170);
     vTaskDelay(1500);
