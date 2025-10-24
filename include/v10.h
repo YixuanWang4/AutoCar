@@ -27,7 +27,8 @@ TickType_t calMotorDelay = 15;//The rate of calculating data 15
 TickType_t calServoDelay = 30; //30
 TickType_t writeDelay = 5;//The rate of writing data to motor 5
 TickType_t writeServoDelay = 10; //15
-int servoRotateTime = 30;
+
+TaskHandle_t servoHandle;
 
 int suOffset = -10;
 

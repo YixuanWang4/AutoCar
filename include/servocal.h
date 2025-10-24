@@ -6,10 +6,10 @@
 
 extern SemaphoreHandle_t readHandleMutex;
 extern QueueHandle_t servoSpeedQueue;
+extern TaskHandle_t servoHandle;
 
 extern TickType_t calServoDelay;
 extern TickType_t writeServoDelay;
-extern int servoRotateTime;
 
 extern QGPMaker_Servo * servoD;
 extern QGPMaker_Servo * servoU;
@@ -20,12 +20,12 @@ extern QGPMaker_Servo * servoGR;
 
 typedef struct{
     int cirSpd, rotSpd, flawSpd, risSpd, gndSpd, storeMode;
-    bool start;
 } ServoSpeed;
 
 void calHandleDataServo(void *parameters);
 
 void writeServoAngle(void *parameters);
 
+void autoLoad(void *parameters);
 
 #endif

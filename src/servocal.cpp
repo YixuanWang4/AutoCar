@@ -16,8 +16,8 @@ void calHandleDataServo(void * parameters){
 
 
 
-    static HandleData handleData;
-    static ServoSpeed servoSpeed;
+    HandleData handleData;
+    ServoSpeed servoSpeed;
     
 
     while(true){
@@ -37,28 +37,35 @@ void calHandleDataServo(void * parameters){
             handleData.padL3 = ps2x.Button(PSB_L3);
             handleData.padR3 = ps2x.Button(PSB_R3);
             handleData.select = ps2x.Button(PSB_SELECT);
+            handleData.start = ps2x.ButtonReleased(PSB_START);
 
             xSemaphoreGive(readHandleMutex);
 
-            servoSpeed.cirSpd = map(handleData.ry, 0, 255, 3, -3);//-3 -> 3
+            if(handleData.start){
+                xTaskCreate(autoLoad, "autoLoad", 2048, NULL, 2, NULL);
+                vTaskSuspend(NULL);
+            }
+
+            servoSpeed.cirSpd = map(handleData.ry, 0, 255, 2, -2);//-3 -> 3
             servoSpeed.rotSpd = ((int)handleData.r2 - (int)handleData.l2) * 4;
-            servoSpeed.risSpd = ((int)handleData.green - (int)handleData.blue) * 3;
+            servoSpeed.risSpd = ((int)handleData.green - (int)handleData.blue) * 2;
             servoSpeed.flawSpd = ((int)handleData.red - (int)handleData.pink) * 3;
             servoSpeed.gndSpd = ((int)handleData.padRight - (int)handleData.padLeft) * 2;
-            servoSpeed.start = handleData.start;
             servoSpeed.storeMode = 0;
 
             
             if(handleData.padUp){
                 servoSpeed.storeMode = 1;
-            }else if(handleData.padDown){
+            }else if(handleData.padRight){
                 servoSpeed.storeMode = 2;
-            }else if(handleData.padL3){
+            }else if(handleData.padDown){
                 servoSpeed.storeMode = 3;
             }else if(handleData.select){
                 servoSpeed.storeMode = 4;
-            }else if(handleData.padR3){
+            }else if(handleData.padL3){
                 servoSpeed.storeMode = 5;
+            }else if(handleData.padLeft){
+                servoSpeed.storeMode = 6;
             }
             
 
@@ -91,9 +98,9 @@ void writeServoAngle(void * parameters){
                     servoD->writeServo(constrain(servoD->readDegrees() + servoSpeed.cirSpd, 0, 180));
                     servoU->writeServo(constrain(servoU->readDegrees() - servoSpeed.cirSpd + servoSpeed.risSpd, 0, 180));
                     servoR->writeServo(constrain(servoR->readDegrees() + servoSpeed.rotSpd, 0, 180));
-                    servoF->writeServo(constrain(servoF->readDegrees() + servoSpeed.flawSpd, 0, 138));
+                    servoF->writeServo(constrain(servoF->readDegrees() + servoSpeed.flawSpd, 0, 135));
                     break;
-                case 1://Little soldier
+                case 1://Big soldier
                     servoD->writeServo(75);//75
                     servoU->writeServo(22);//22
                     servoR->writeServo(74);//74
@@ -118,9 +125,8 @@ void writeServoAngle(void * parameters){
                     dAng = servoD->readDegrees();
                     uAng = servoU->readDegrees();
                     rAng = servoR->readDegrees();
-                    Serial.print(dAng);Serial.print(uAng);Serial.print(rAng);
-                    
-               
+                    Serial.println(dAng);Serial.println(uAng);Serial.println(rAng);
+
                     vTaskDelay(20);
                     break;
                 case 5:
@@ -132,6 +138,15 @@ void writeServoAngle(void * parameters){
                     vTaskDelay(20);
 
                     break;
+                case 6:
+                    servoD->writeServo(59);//58
+                    servoU->writeServo(44);//62
+                    servoR->writeServo(74);//98
+                    servoF->writeServo(45);
+
+                    vTaskDelay(20);
+                    break;
+
                 default:
                     break;
             }
@@ -148,4 +163,62 @@ void writeServoAngle(void * parameters){
 
     vTaskDelete(NULL);
 
+}
+
+void autoLoad(void * parameters){
+    ServoSpeed servoSpeed;
+
+    servoSpeed.cirSpd = 0;
+    servoSpeed.flawSpd = 0;
+    servoSpeed.gndSpd = 0;
+    servoSpeed.risSpd = 0;
+    servoSpeed.rotSpd = 0;
+    servoSpeed.storeMode = 4;//Init the struct,memorize the place
+    if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
+        xQueueOverwrite(servoSpeedQueue, &servoSpeed);
+    }
+
+    servoF->writeServo(45);
+    vTaskDelay(100);//Release the first super soldier
+
+    servoSpeed.storeMode = 3;
+    if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
+        xQueueOverwrite(servoSpeedQueue, &servoSpeed);
+    }//Go for the upper soldier
+
+    vTaskDelay(1500);
+
+    servoF->writeServo(135);
+    vTaskDelay(100);
+
+    servoSpeed.storeMode = 5;
+    if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
+        xQueueOverwrite(servoSpeedQueue, &servoSpeed);
+    }//Go to the memorized place
+
+    vTaskDelay(1500);
+
+    servoF->writeServo(45);
+    vTaskDelay(100);//Release the second super soldier
+
+    servoSpeed.storeMode = 6;
+    if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
+        xQueueOverwrite(servoSpeedQueue, &servoSpeed);
+    }//Go for the lower soldier
+    vTaskDelay(1500);
+
+    servoF->writeServo(135);
+    vTaskDelay(100);
+
+    servoSpeed.storeMode = 5;
+    if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
+        xQueueOverwrite(servoSpeedQueue, &servoSpeed);
+    }//Go to the memorized place
+
+    vTaskDelay(1500);
+    servoF->writeServo(45);
+    vTaskDelay(100);//Release the second super soldier
+
+    vTaskResume(servoHandle);
+    vTaskDelete(NULL);
 }

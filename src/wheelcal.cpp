@@ -48,7 +48,7 @@ void calHandleParaWheel(void *pvParameters){
             xSemaphoreGive(readHandleMutex);
 
             carStatus.vy = (float)map(handleData.ly, 0, 255, -maxSpeed, maxSpeed) / 1000.0;
-            carStatus.vx = (float)map(handleData.lx, 0, 255, -maxSpeed/2, maxSpeed/2) / 1000.0;
+            carStatus.vx = (float)map(handleData.lx, 0, 255, -maxSpeed/1.2, maxSpeed/1.2) / 1000.0;
             carStatus.w = ((float)handleData.r1 - (float)handleData.l1) * M_PI * maxSpeed / 700.0;
 
             //Turning speed: pai (s^-1)
