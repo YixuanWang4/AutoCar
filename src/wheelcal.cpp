@@ -49,15 +49,15 @@ void calHandleParaWheel(void *pvParameters){
 
             carStatus.vy = (float)map(handleData.ly, 0, 255, -maxSpeed, maxSpeed) / 1000.0;
             carStatus.vx = (float)map(handleData.lx, 0, 255, -maxSpeed/1.2, maxSpeed/1.2) / 1000.0;
-            carStatus.w = ((float)handleData.r1 - (float)handleData.l1) * M_PI * maxSpeed / 700.0;
+            carStatus.w = ((float)handleData.r1 - (float)handleData.l1) * M_PI * maxSpeed / 1000.0;
 
             //Turning speed: pai (s^-1)
 
             motorSpeed.wFL = (carStatus.vx + carStatus.vy +
                             sqrt(2) * cos(M_PI_4 - angle) * carStatus.w * length) / radius;
-            motorSpeed.wFR = (0 - carStatus.vx + carStatus.vy -
+            motorSpeed.wFR = (-carStatus.vx + carStatus.vy -
                             sqrt(2) * cos(M_PI_4 - angle) * carStatus.w * length) / radius;
-            motorSpeed.wBL = (0 - carStatus.vx + carStatus.vy + 
+            motorSpeed.wBL = (-carStatus.vx + carStatus.vy + 
                             sqrt(2) * cos(M_PI_4 - angle) * carStatus.w * length) / radius;
             motorSpeed.wBR = (carStatus.vx + carStatus.vy - 
                             sqrt(2) * cos(M_PI_4 - angle) * carStatus.w * length) / radius;
@@ -88,10 +88,10 @@ void writeMotorAngSpd(void *pvParameters){
 
         }else{
 
-            motorFL->setSpeed(map(constrain(abs(motorSpeed.wFL), 0, 35), 0, 35, 0, 255));
-            motorFR->setSpeed(map(constrain(abs(motorSpeed.wFR), 0, 35), 0, 35, 0, 255));
-            motorBL->setSpeed(map(constrain(abs(motorSpeed.wBL), 0, 35), 0, 35, 0, 255));
-            motorBR->setSpeed(map(constrain(abs(motorSpeed.wBR), 0, 35), 0, 35, 0, 255));
+            motorFL->setSpeed(map(constrain(abs(motorSpeed.wFL), 0, 40), 0, 40, 0, 255));
+            motorFR->setSpeed(map(constrain(abs(motorSpeed.wFR), 0, 40), 0, 40, 0, 255));
+            motorBL->setSpeed(map(constrain(abs(motorSpeed.wBL), 0, 40), 0, 40, 0, 255));
+            motorBR->setSpeed(map(constrain(abs(motorSpeed.wBR), 0, 40), 0, 40, 0, 255));
 
             if(motorSpeed.wFL > 0.2){
                 motorFL->run(FORWARD);

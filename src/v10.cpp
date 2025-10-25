@@ -91,7 +91,9 @@ bool servoInit(){
     servoR->writeServo(0);
     servoF->writeServo(0);
     servoGL->writeServo(170);
-    vTaskDelay(1500);
+    vTaskDelay(1000);
     servoGR->writeServo(10);
+    vTaskDelay(1000);
+
     return true;
 }

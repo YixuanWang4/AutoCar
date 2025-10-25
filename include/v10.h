@@ -22,11 +22,11 @@ QueueHandle_t motorSpeedQueue;
 QueueHandle_t servoSpeedQueue;
 SemaphoreHandle_t readHandleMutex;
 
-TickType_t readHandleDelay = 8;//The rate of reading handle 8
-TickType_t calMotorDelay = 15;//The rate of calculating data 15
+TickType_t readHandleDelay = 10;//The rate of reading handle 8
+TickType_t calMotorDelay = 20;//The rate of calculating data 15
 TickType_t calServoDelay = 30; //30
-TickType_t writeDelay = 5;//The rate of writing data to motor 5
-TickType_t writeServoDelay = 10; //15
+TickType_t writeDelay = 6;//The rate of writing data to motor 5
+TickType_t writeServoDelay = 15; //15
 
 TaskHandle_t servoHandle;
 
