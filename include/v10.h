@@ -30,7 +30,8 @@ TickType_t writeServoDelay = 15; //15
 
 TaskHandle_t servoHandle;
 
-int suOffset = -10;
+int suOffset = 7;
+int sdOffset = -4;
 
 float maxSpeed = 1000;//The maxspeed of minicar, default to 1000 mm/s
 float angle = 0.7153829260635;

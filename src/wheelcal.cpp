@@ -88,10 +88,10 @@ void writeMotorAngSpd(void *pvParameters){
 
         }else{
 
-            motorFL->setSpeed(map(constrain(abs(motorSpeed.wFL), 0, 40), 0, 40, 0, 255));
-            motorFR->setSpeed(map(constrain(abs(motorSpeed.wFR), 0, 40), 0, 40, 0, 255));
-            motorBL->setSpeed(map(constrain(abs(motorSpeed.wBL), 0, 40), 0, 40, 0, 255));
-            motorBR->setSpeed(map(constrain(abs(motorSpeed.wBR), 0, 40), 0, 40, 0, 255));
+            motorFL->setSpeed(map(constrain(abs(motorSpeed.wFL), 0, 42), 0, 42, 0, 255));
+            motorFR->setSpeed(map(constrain(abs(motorSpeed.wFR), 0, 42), 0, 42, 0, 255));
+            motorBL->setSpeed(map(constrain(abs(motorSpeed.wBL), 0, 42), 0, 42, 0, 255));
+            motorBR->setSpeed(map(constrain(abs(motorSpeed.wBR), 0, 42), 0, 42, 0, 255));
 
             if(motorSpeed.wFL > 0.2){
                 motorFL->run(FORWARD);

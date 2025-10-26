@@ -95,28 +95,37 @@ void writeServoAngle(void * parameters){
                     servoD->writeServo(constrain(servoD->readDegrees() + servoSpeed.cirSpd, 0, 180));
                     servoU->writeServo(constrain(servoU->readDegrees() - servoSpeed.cirSpd + servoSpeed.risSpd, 0, 180));
                     servoR->writeServo(constrain(servoR->readDegrees() + servoSpeed.rotSpd, 0, 180));
-                    servoF->writeServo(constrain(servoF->readDegrees() + servoSpeed.flawSpd, 0, 133));
+                    servoF->writeServo(constrain(servoF->readDegrees() + servoSpeed.flawSpd, 0, 111));
                     break;
                 case 1://Big soldier
-                    servoD->writeServo(75);//75
-                    servoU->writeServo(22 - suOffset);//22
+                    vTaskSuspend(servoHandle);
+                    servoU->writeServo(22 + suOffset);//22
                     servoR->writeServo(74);//74
                     servoF->writeServo(45);
-                    vTaskDelay(20);
+                    vTaskDelay(500);
+                    servoD->writeServo(75 + sdOffset);//75
+                    vTaskDelay(500);
+                    vTaskResume(servoHandle);
                     break;
                 case 2:
-                    servoD->writeServo(64);//67
-                    servoU->writeServo(36 - suOffset);//48
+                    vTaskSuspend(servoHandle);
+                    servoU->writeServo(36 + suOffset);//48
                     servoR->writeServo(74);//94
                     servoF->writeServo(45);
-                    vTaskDelay(20);
+                    vTaskDelay(500);
+                    servoD->writeServo(64 + sdOffset);//67
+                    vTaskDelay(500);
+                    vTaskResume(servoHandle);
                     break;
                 case 3://Super Soldier
-                    servoD->writeServo(59);//58
-                    servoU->writeServo(44 - suOffset);//62
+                    vTaskSuspend(servoHandle);
+                    servoU->writeServo(44 + suOffset);//62
                     servoR->writeServo(74);//98
                     servoF->writeServo(45);
-                    vTaskDelay(20);
+                    vTaskDelay(500);
+                    servoD->writeServo(59 + sdOffset);//58
+                    vTaskDelay(500);
+                    vTaskResume(servoHandle);
                     break;
                 case 4:
                     dAng = servoD->readDegrees();
@@ -127,21 +136,24 @@ void writeServoAngle(void * parameters){
                     vTaskDelay(20);
                     break;
                 case 5:
-                
+                    vTaskSuspend(servoHandle);
                     servoD->writeServo(dAng);
+                    vTaskDelay(500);
                     servoU->writeServo(uAng);
                     servoR->writeServo(rAng);
-
-                    vTaskDelay(20);
+                    vTaskDelay(500);
+                    vTaskResume(servoHandle);
 
                     break;
                 case 6:
-                    servoD->writeServo(64);//62
-                    servoU->writeServo(13 - suOffset);//15
+                    vTaskSuspend(servoHandle);
+                    servoU->writeServo(13 + suOffset);//15
                     servoR->writeServo(0);//98
                     servoF->writeServo(45);
-
-                    vTaskDelay(20);
+                    vTaskDelay(500);
+                    servoD->writeServo(64 + sdOffset + 2);//62
+                    vTaskDelay(500);
+                    vTaskResume(servoHandle);
                     break;
 
                 default:
@@ -191,18 +203,15 @@ void autoLoad(void * parameters){
         xQueueOverwrite(servoSpeedQueue, &servoSpeed);
     }//Go for the upper soldier
 
-    vTaskDelay(1100);
-
-    servoF->writeServo(133);
+    vTaskDelay(1200);
+    servoF->writeServo(111);
     vTaskDelay(500);
 
     servoSpeed.storeMode = 5;
     if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
         xQueueOverwrite(servoSpeedQueue, &servoSpeed);
     }//Go to the memorized place
-
-    vTaskDelay(1100);
-
+    vTaskDelay(1200);
     servoF->writeServo(45);
     vTaskDelay(500);//Release the second super soldier
 
@@ -210,17 +219,15 @@ void autoLoad(void * parameters){
     if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
         xQueueOverwrite(servoSpeedQueue, &servoSpeed);
     }//Go for the lower soldier
-    vTaskDelay(1100);
-
-    servoF->writeServo(133);
+    vTaskDelay(1200);
+    servoF->writeServo(111);
     vTaskDelay(500);
 
     servoSpeed.storeMode = 5;
     if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
         xQueueOverwrite(servoSpeedQueue, &servoSpeed);
     }//Go to the memorized place
-
-    vTaskDelay(1100);
+    vTaskDelay(1200);
     servoF->writeServo(45);
     vTaskDelay(500);//Release the second super soldier
 

@@ -19,6 +19,7 @@ extern QGPMaker_Servo * servoGL;
 extern QGPMaker_Servo * servoGR;
 
 extern int suOffset;
+extern int sdOffset;
 
 typedef struct{
     int cirSpd, rotSpd, flawSpd, risSpd, gndSpd, storeMode;
