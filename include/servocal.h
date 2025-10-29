@@ -29,6 +29,8 @@ void calHandleDataServo(void *parameters);
 
 void writeServoAngle(void *parameters);
 
-void autoLoad(void *parameters);
+void autoLoadLLL(void *parameters);
+
+void autoLoadLMLL(void *parameters);
 
 #endif

@@ -12,7 +12,7 @@
 void setup(){
 
     Serial.begin(9600); //Due to the cable, we cannot set a higher baud rate
-    Serial.println("MiniCar! Version:V1.2");
+    Serial.println("MiniCar! Version:V2.1");
 
     //initialize our Motorboard
     initShield();
@@ -26,6 +26,7 @@ void setup(){
         }
     }
 
+    vTaskDelay(2500);
     xTaskCreate(getHandleData, "getHandleData", 2048, NULL, 1, NULL);
     xTaskCreate(calHandleParaWheel, "calHandleParaWheel", 2048, NULL, 2, NULL);
     xTaskCreate(writeMotorAngSpd, "writeMotorAngSpd", 2048, NULL, 3, NULL);
@@ -47,7 +48,14 @@ bool initShield(){
     motorFR = Shield.getMotor(2);
     motorBR = Shield.getMotor(3);
 
+    #ifdef USE_ESP32
     int error = ps2x.config_gamepad(18,23,5,19, true, true);
+    #endif
+
+    #ifdef USE_ESP32_S3
+    int error = ps2x.config_gamepad(18,23,6,19, true, true);
+    #endif
+
     if(error != 0){
         return false;
     }
@@ -85,9 +93,9 @@ bool pipeInit(){
 bool servoInit(){
 
     //servoD->writeServo(45);
-    servoD->writeServo(135);
+    servoD->writeServo(125);
     //servoU->writeServo(45 + suOffset);
-    servoU->writeServo(155 + suOffset);
+    servoU->writeServo(125 + suOffset);
     servoR->writeServo(0);
     servoF->writeServo(0);
     servoGL->writeServo(170);

@@ -38,17 +38,20 @@ void calHandleDataServo(void * parameters){
             handleData.padL3 = ps2x.Button(PSB_L3);
             handleData.padR3 = ps2x.Button(PSB_R3);
             handleData.select = ps2x.Button(PSB_SELECT);
-            handleData.start = ps2x.ButtonReleased(PSB_START);
+            handleData.start = ps2x.Button(PSB_START);
             xSemaphoreGive(readHandleMutex);
 
             if(handleData.start){
-                xTaskCreate(autoLoad, "autoLoad", 2048, NULL, 2, NULL);
+                xTaskCreate(autoLoadLLL, "autoLoadLLL", 2048, NULL, 2, NULL);
+                vTaskSuspend(NULL);
+            }else if(handleData.padR3){
+                xTaskCreate(autoLoadLMLL, "autoLoadLMLL", 2048, NULL, 2, NULL);
                 vTaskSuspend(NULL);
             }
 
             servoSpeed.cirSpd = map(handleData.ry, 0, 255, 2, -2);//-3 -> 3
             servoSpeed.rotSpd = ((int)handleData.r2 - (int)handleData.l2) * 4;
-            servoSpeed.risSpd = ((int)handleData.green - (int)handleData.blue) * 2;
+            servoSpeed.risSpd = ((int)handleData.green - (int)handleData.blue) * 1;
             servoSpeed.flawSpd = ((int)handleData.red - (int)handleData.pink) * 3;
             servoSpeed.gndSpd = map(handleData.rx, 0, 255, -1, 1);
             if(handleData.padR3){servoSpeed.gndSpd = 2;}
@@ -85,75 +88,53 @@ void calHandleDataServo(void * parameters){
 
 void writeServoAngle(void * parameters){
     ServoSpeed servoSpeed;
-    byte dAng = 135, uAng = 135, rAng = 0;
+    byte dAng = 150, uAng = 135, rAng = 74;
 
     while(true){
         if(xQueueReceive(servoSpeedQueue, &servoSpeed, portMAX_DELAY) == pdPASS){
 
             switch(servoSpeed.storeMode){
                 case 0:
-                    servoD->writeServo(constrain(servoD->readDegrees() + servoSpeed.cirSpd, 0, 180));
+                    servoD->writeServo(constrain(servoD->readDegrees() + servoSpeed.cirSpd, 0, 150));
                     servoU->writeServo(constrain(servoU->readDegrees() - servoSpeed.cirSpd + servoSpeed.risSpd, 0, 180));
                     servoR->writeServo(constrain(servoR->readDegrees() + servoSpeed.rotSpd, 0, 180));
-                    servoF->writeServo(constrain(servoF->readDegrees() + servoSpeed.flawSpd, 0, 111));
+                    servoF->writeServo(constrain(servoF->readDegrees() + servoSpeed.flawSpd, 0, 80));
                     break;
                 case 1://Big soldier
-                    vTaskSuspend(servoHandle);
+                    servoD->writeServo(75 + sdOffset);//75
                     servoU->writeServo(22 + suOffset);//22
                     servoR->writeServo(74);//74
                     servoF->writeServo(45);
-                    vTaskDelay(500);
-                    servoD->writeServo(75 + sdOffset);//75
-                    vTaskDelay(500);
-                    vTaskResume(servoHandle);
                     break;
                 case 2:
-                    vTaskSuspend(servoHandle);
-                    servoU->writeServo(36 + suOffset);//48
+                    servoD->writeServo(66 + sdOffset);//67
+                    servoU->writeServo(35 + suOffset);//48
                     servoR->writeServo(74);//94
                     servoF->writeServo(45);
-                    vTaskDelay(500);
-                    servoD->writeServo(64 + sdOffset);//67
-                    vTaskDelay(500);
-                    vTaskResume(servoHandle);
                     break;
                 case 3://Super Soldier
-                    vTaskSuspend(servoHandle);
+                    servoD->writeServo(59 + sdOffset);//58
                     servoU->writeServo(44 + suOffset);//62
                     servoR->writeServo(74);//98
                     servoF->writeServo(45);
-                    vTaskDelay(500);
-                    servoD->writeServo(59 + sdOffset);//58
-                    vTaskDelay(500);
-                    vTaskResume(servoHandle);
                     break;
                 case 4:
                     dAng = servoD->readDegrees();
                     uAng = servoU->readDegrees();
                     rAng = servoR->readDegrees();
-                    Serial.println(dAng);Serial.println(uAng);Serial.println(rAng);
-
                     vTaskDelay(20);
                     break;
                 case 5:
-                    vTaskSuspend(servoHandle);
                     servoD->writeServo(dAng);
-                    vTaskDelay(500);
                     servoU->writeServo(uAng);
                     servoR->writeServo(rAng);
-                    vTaskDelay(500);
-                    vTaskResume(servoHandle);
 
                     break;
                 case 6:
-                    vTaskSuspend(servoHandle);
-                    servoU->writeServo(13 + suOffset);//15
+                    servoD->writeServo(67 + sdOffset);//62
+                    servoU->writeServo(8 + suOffset);//15
                     servoR->writeServo(0);//98
                     servoF->writeServo(45);
-                    vTaskDelay(500);
-                    servoD->writeServo(64 + sdOffset + 2);//62
-                    vTaskDelay(500);
-                    vTaskResume(servoHandle);
                     break;
 
                 default:
@@ -182,7 +163,7 @@ void writeServoAngle(void * parameters){
 
 }
 
-void autoLoad(void * parameters){
+void autoLoadLLL(void * parameters){
     ServoSpeed servoSpeed;
 
     servoSpeed.cirSpd = 0;
@@ -194,8 +175,8 @@ void autoLoad(void * parameters){
     if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
         xQueueOverwrite(servoSpeedQueue, &servoSpeed);
     }
-
-    servoF->writeServo(45);
+    
+    servoF->writeServo(35);
     vTaskDelay(500);//Release the first super soldier
 
     servoSpeed.storeMode = 3;
@@ -203,15 +184,16 @@ void autoLoad(void * parameters){
         xQueueOverwrite(servoSpeedQueue, &servoSpeed);
     }//Go for the upper soldier
 
-    vTaskDelay(1200);
-    servoF->writeServo(111);
+    vTaskDelay(1250);
+    servoF->writeServo(80);
     vTaskDelay(500);
 
     servoSpeed.storeMode = 5;
     if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
         xQueueOverwrite(servoSpeedQueue, &servoSpeed);
     }//Go to the memorized place
-    vTaskDelay(1200);
+    
+    vTaskDelay(1250);
     servoF->writeServo(45);
     vTaskDelay(500);//Release the second super soldier
 
@@ -219,18 +201,97 @@ void autoLoad(void * parameters){
     if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
         xQueueOverwrite(servoSpeedQueue, &servoSpeed);
     }//Go for the lower soldier
-    vTaskDelay(1200);
-    servoF->writeServo(111);
+
+    vTaskDelay(1250);
+    servoF->writeServo(80);
     vTaskDelay(500);
 
     servoSpeed.storeMode = 5;
     if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
         xQueueOverwrite(servoSpeedQueue, &servoSpeed);
     }//Go to the memorized place
-    vTaskDelay(1200);
+
+    vTaskDelay(1250);
     servoF->writeServo(45);
     vTaskDelay(500);//Release the second super soldier
 
     vTaskResume(servoHandle);
+
     vTaskDelete(NULL);
+}
+
+void autoLoadLMLL(void * parameters){
+    ServoSpeed servoSpeed;
+
+    servoSpeed.cirSpd = 0;
+    servoSpeed.flawSpd = 0;
+    servoSpeed.gndSpd = 0;
+    servoSpeed.risSpd = 0;
+    servoSpeed.rotSpd = 0;
+    servoSpeed.storeMode = 4;//Init the struct,memorize the place
+    if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
+        xQueueOverwrite(servoSpeedQueue, &servoSpeed);
+    }
+    
+    servoF->writeServo(35);
+    vTaskDelay(500);//Release the first super soldier
+
+    servoSpeed.storeMode = 2;
+    if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
+        xQueueOverwrite(servoSpeedQueue, &servoSpeed);
+    }//Go for the middle soldier
+
+    vTaskDelay(1250);
+    servoF->writeServo(80);
+    vTaskDelay(500);
+
+    servoSpeed.storeMode = 5;
+    if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
+        xQueueOverwrite(servoSpeedQueue, &servoSpeed);
+    }//Go to the memorized place
+    
+    vTaskDelay(1250);
+    servoF->writeServo(45);
+    vTaskDelay(500);//Release the middle soldier
+
+    servoSpeed.storeMode = 3;
+    if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
+        xQueueOverwrite(servoSpeedQueue, &servoSpeed);
+    }//Go for the second super soldier
+
+    vTaskDelay(1250);
+    servoF->writeServo(80);
+    vTaskDelay(500);
+
+    servoSpeed.storeMode = 5;
+    if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
+        xQueueOverwrite(servoSpeedQueue, &servoSpeed);
+    }//Go to the memorized place
+
+    vTaskDelay(1250);
+    servoF->writeServo(45);
+    vTaskDelay(500);//Release the second super soldier
+
+    servoSpeed.storeMode = 6;
+    if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
+        xQueueOverwrite(servoSpeedQueue, &servoSpeed);
+    }//Go for the lower soldier
+
+    vTaskDelay(1250);
+    servoF->writeServo(80);
+    vTaskDelay(500);
+
+    servoSpeed.storeMode = 5;
+    if(xQueueSend(servoSpeedQueue, &servoSpeed, portMAX_DELAY) != pdPASS){
+        xQueueOverwrite(servoSpeedQueue, &servoSpeed);
+    }//Go to the memorized place
+
+    vTaskDelay(1250);
+    servoF->writeServo(45);
+    vTaskDelay(500);//Release the second super soldier
+
+    vTaskResume(servoHandle);
+
+    vTaskDelete(NULL);
+
 }
