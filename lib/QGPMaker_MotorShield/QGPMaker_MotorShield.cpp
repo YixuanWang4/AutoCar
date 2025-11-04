@@ -33,7 +33,12 @@ QGPMaker_MotorShield::QGPMaker_MotorShield(uint8_t addr)
 void QGPMaker_MotorShield::begin(uint16_t freq)
 {
   // init PWM w/_freq
+  #ifdef USE_IIC_FAST
+  WIRE.begin(-1, -1, 400000UL);
+  #endif
+  #ifdef USE_IIC_STANDARD
   WIRE.begin();
+  #endif
   _pwm.begin();
   _freq = freq;
   _pwm.setPWMFreq(_freq); // This is the maximum PWM frequency

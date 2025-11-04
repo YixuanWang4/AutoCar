@@ -7,9 +7,13 @@
 #define USE_ESP32
 //#define USE_ESP32_S3
 
+//#define USE_IIC_STANDARD
+#define USE_IIC_FAST
+
 #include <Arduino.h> //To enable the basic Arduino function
 
 #include <QGPMaker_MotorShield.h> //To communicate with our Motorshield
+#include <Ultrasonic.h>
 #include <PS2X_lib.h>
 
 #include <wheelcal.h>
@@ -25,18 +29,18 @@ QueueHandle_t motorSpeedQueue;
 QueueHandle_t servoSpeedQueue;
 SemaphoreHandle_t readHandleMutex;
 
-TickType_t readHandleDelay = 9;//The rate of reading handle 8
-TickType_t calMotorDelay = 18;//The rate of calculating data 15
-TickType_t calServoDelay = 30; //30
-TickType_t writeDelay = 5;//The rate of writing data to motor 5
-TickType_t writeServoDelay = 15; //15
+TickType_t readHandleDelay = 8;//The rate of reading handle 8
+TickType_t calMotorDelay = 15;//The rate of calculating data 15
+TickType_t calServoDelay = 20; //30
+TickType_t writeDelay = 4;//The rate of writing data to motor 5
+TickType_t writeServoDelay = 10; //15
 
 TaskHandle_t servoHandle;
 
 int suOffset = 12;
 int sdOffset = -4;
 
-float maxSpeed = 1000;//The maxspeed of minicar, default to 1000 mm/s
+float maxSpeed = 500;//The maxspeed of minicar, default to 1000 mm/s
 float angle = 0.7153829260635;
 float length = 0.136452372643;
 float radius = 0.031;//The radius of our wheel

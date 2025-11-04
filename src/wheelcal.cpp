@@ -37,6 +37,8 @@ void calHandleParaWheel(void *pvParameters){
     HandleData handleData;
     CarStatus carStatus;
     MotorSpeed motorSpeed;
+    TickType_t lastSlowTime = 0;
+    TickType_t lastReadTime = 0;
 
     while(true){
 
@@ -47,9 +49,17 @@ void calHandleParaWheel(void *pvParameters){
             handleData.ly = ps2x.Analog(PSS_LY);
             xSemaphoreGive(readHandleMutex);
 
+            if(handleData.ly < 200 && handleData.ly > 55){
+                lastSlowTime = xTaskGetTickCount();
+            }else if(xTaskGetTickCount() - lastSlowTime > 1000){
+                maxSpeed = 1200;
+            }else{
+                maxSpeed = 500;
+            }
+
             carStatus.vy = (float)map(handleData.ly, 0, 255, -maxSpeed, maxSpeed) / 1000.0;
-            carStatus.vx = (float)map(handleData.lx, 0, 255, -maxSpeed, maxSpeed) / 700.0;
-            carStatus.w = ((float)handleData.r1 - (float)handleData.l1) * M_PI * maxSpeed / 1200.0;
+            carStatus.vx = (float)map(handleData.lx, 0, 255, -1000, 1000) / 1000.0;
+            carStatus.w = ((float)handleData.r1 - (float)handleData.l1) * M_PI * 1000 / 1000.0;
 
             //Turning speed: pai (s^-1)
 
@@ -81,6 +91,8 @@ void writeMotorAngSpd(void *pvParameters){
 
     MotorSpeed motorSpeed;
 
+    xQueueReset(motorSpeedQueue);
+
     while(true){
         if(xQueueReceive(motorSpeedQueue, &motorSpeed, portMAX_DELAY) != pdPASS){
 
@@ -88,38 +100,38 @@ void writeMotorAngSpd(void *pvParameters){
 
         }else{
 
-            motorFL->setSpeed(map(constrain(abs(motorSpeed.wFL), 0, 37), 0, 37, 0, 240));
-            motorFR->setSpeed(map(constrain(abs(motorSpeed.wFR), 0, 37), 0, 37, 0, 240));
-            motorBL->setSpeed(map(constrain(abs(motorSpeed.wBL), 0, 37), 0, 37, 0, 240));
-            motorBR->setSpeed(map(constrain(abs(motorSpeed.wBR), 0, 37), 0, 37, 0, 240));
+            motorFL->setSpeed(map(constrain(abs(motorSpeed.wFL), 0, 40), 0, 40, 0, 255));
+            motorFR->setSpeed(map(constrain(abs(motorSpeed.wFR), 0, 40), 0, 40, 0, 255));
+            motorBL->setSpeed(map(constrain(abs(motorSpeed.wBL), 0, 40), 0, 40, 0, 255));
+            motorBR->setSpeed(map(constrain(abs(motorSpeed.wBR), 0, 40), 0, 40, 0, 255));
 
-            if(motorSpeed.wFL > 0.2){
+            if(motorSpeed.wFL > 0.3){
                 motorFL->run(FORWARD);
-            }else if(motorSpeed.wFL < -0.2){
+            }else if(motorSpeed.wFL < -0.3){
                 motorFL->run(BACKWARD);
             }else{
                 motorFL->run(RELEASE);
             }
 
-            if(motorSpeed.wFR > 0.2){
+            if(motorSpeed.wFR > 0.3){
                 motorFR->run(FORWARD);
-            }else if(motorSpeed.wFR < -0.2){
+            }else if(motorSpeed.wFR < -0.3){
                 motorFR->run(BACKWARD);
             }else{
                 motorFR->run(RELEASE);
             }
 
-            if(motorSpeed.wBL > 0.2){
+            if(motorSpeed.wBL > 0.3){
                 motorBL->run(FORWARD);
-            }else if(motorSpeed.wBL < -0.2){
+            }else if(motorSpeed.wBL < -0.3){
                 motorBL->run(BACKWARD);
             }else{
                 motorBL->run(RELEASE);
             }
 
-            if(motorSpeed.wBR > 0.2){
+            if(motorSpeed.wBR > 0.3){
                 motorBR->run(FORWARD);
-            }else if(motorSpeed.wBR < -0.2){
+            }else if(motorSpeed.wBR < -0.3){
                 motorBR->run(BACKWARD);
             }else{
                 motorBR->run(RELEASE);

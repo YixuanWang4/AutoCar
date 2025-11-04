@@ -11,6 +11,11 @@
 
 void setup(){
 
+    pinMode(2, OUTPUT);
+    pinMode(14, OUTPUT);
+    pinMode(12, INPUT);
+    digitalWrite(12, LOW);
+    digitalWrite(14, HIGH); //Set pin 14 high to power ultrasonic sensor
     Serial.begin(9600); //Due to the cable, we cannot set a higher baud rate
     Serial.println("MiniCar! Version:V2.1");
 
@@ -26,7 +31,6 @@ void setup(){
         }
     }
 
-    vTaskDelay(2500);
     xTaskCreate(getHandleData, "getHandleData", 2048, NULL, 1, NULL);
     xTaskCreate(calHandleParaWheel, "calHandleParaWheel", 2048, NULL, 2, NULL);
     xTaskCreate(writeMotorAngSpd, "writeMotorAngSpd", 2048, NULL, 3, NULL);
@@ -41,6 +45,7 @@ void loop(){
 
 bool initShield(){
     
+
     Shield.begin(50);
 
     motorFL = Shield.getMotor(1);
@@ -68,24 +73,28 @@ bool initShield(){
 
 bool pipeInit(){
 
-    motorSpeedQueue = xQueueCreate(100, sizeof(MotorSpeed));
+    motorSpeedQueue = xQueueCreate(50, sizeof(MotorSpeed));
     if(motorSpeedQueue == NULL){
         Serial.println("W31:Cannot initialize motor queue!");
         return false;
     }
 
-    servoSpeedQueue = xQueueCreate(100, sizeof(ServoSpeed));
+    xQueueReset(motorSpeedQueue);
+
+    servoSpeedQueue = xQueueCreate(50, sizeof(ServoSpeed));
     if(servoSpeedQueue == NULL){
         Serial.println("W32:Cannot initialize servo queue!");
         return false;
     }
+
+    xQueueReset(servoSpeedQueue);
 
     readHandleMutex = xSemaphoreCreateMutex();
     if (readHandleMutex == NULL) {
         Serial.println("W4:Failed to create mutex!");
         return false;
     }
-
+    
     return true;
 
 }//init the pipe we'll use to transmit numbers

@@ -33,7 +33,6 @@ extern QGPMaker_DCMotor * motorFL;
 extern QGPMaker_DCMotor * motorBL;
 extern QGPMaker_DCMotor * motorFR;
 extern QGPMaker_DCMotor * motorBR;
-
 extern PS2X ps2x;
 
 extern QueueHandle_t motorSpeedQueue;

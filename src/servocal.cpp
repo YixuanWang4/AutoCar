@@ -13,12 +13,8 @@ QGPMaker_Servo * servoGL = Shield.getServo(3);
 QGPMaker_Servo * servoGR = Shield.getServo(5);
 
 void calHandleDataServo(void * parameters){
-
-
-
     HandleData handleData;
     ServoSpeed servoSpeed;
-    
 
     while(true){
         if(xSemaphoreTake(readHandleMutex, portMAX_DELAY) == pdPASS){
@@ -38,7 +34,6 @@ void calHandleDataServo(void * parameters){
             handleData.padL3 = ps2x.Button(PSB_L3);
             handleData.padR3 = ps2x.Button(PSB_R3);
             handleData.select = ps2x.Button(PSB_SELECT);
-            handleData.start = ps2x.Button(PSB_START);
             xSemaphoreGive(readHandleMutex);
 
             if(handleData.start){
@@ -89,7 +84,6 @@ void calHandleDataServo(void * parameters){
 void writeServoAngle(void * parameters){
     ServoSpeed servoSpeed;
     byte dAng = 150, uAng = 135, rAng = 74;
-
     while(true){
         if(xQueueReceive(servoSpeedQueue, &servoSpeed, portMAX_DELAY) == pdPASS){
 
@@ -132,7 +126,7 @@ void writeServoAngle(void * parameters){
                     break;
                 case 6:
                     servoD->writeServo(67 + sdOffset);//62
-                    servoU->writeServo(8 + suOffset);//15
+                    servoU->writeServo(9 + suOffset);//15
                     servoR->writeServo(0);//98
                     servoF->writeServo(45);
                     break;
